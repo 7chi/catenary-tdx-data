@@ -4,13 +4,13 @@ use core::result::Result;
 use reqwest::{header::AUTHORIZATION, *};
 //use serde_json::*;
 use std::{collections::HashMap, env, error::Error, fs::File, path::Path};
-//use std::io::Write;
+use std::io::Write;
 use catenary_tdx_data::auth::URL_HEAD;
 use std::{thread, time::Duration};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
-    //let mut output = File::create("ilha_formosa.json")?;
+    let mut output = File::create("ilha_formosa.json")?;
 
     let bus = [
         //static bus by city
@@ -111,15 +111,7 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
         "TMRT", "NTMC", "NTALRT",
     ];
 
-    let raw_path = match env::consts::ARCH {
-        "x86_64" => format!(
-            "C:\\Users\\{}\\Downloads\\tdx-secret.json",
-            env::var("USERNAME")?
-        ),
-
-        &_ => todo!(),
-    };
-    let file_path = Path::new(&raw_path);
+    let file_path = Path::new("./tdx-secret.json");
     let file = File::open(file_path).expect("file not found");
     let secret: HashMap<String, String> =
         serde_json::from_reader(file).expect("error while reading");
@@ -358,7 +350,10 @@ async fn fetch(
 
     Ok(client
         .get(&query_url)
-        .header(AUTHORIZATION, token)
+        //.header(AUTHORIZATION, token)
+        .header("accept", "application/json")
+        .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.122 Safari/537.36")
         .send()
         .await?)
 }
+
