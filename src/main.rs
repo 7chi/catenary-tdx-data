@@ -10,7 +10,6 @@ use std::{thread, time::Duration};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
-    let mut output = File::create("ilha_formosa.json")?;
 
     let bus = [
         //static bus by city
@@ -125,216 +124,19 @@ async fn main() -> Result<(), Box<dyn Error + Send + Sync>> {
     .await?;
 
     for loc in city.iter() {
-        fetch(&bus[0].replace("city", loc), &token, &client)
-            .await?
-            .json::<BusRoutes>()
-            .await?;
-        fetch(&bus[1].replace("city", loc), &token, &client)
-            .await?
-            .json::<BusStops>()
-            .await?;
-        fetch(&bus[2].replace("city", loc), &token, &client)
-            .await?
-            .json::<Operators>()
-            .await?;
-        fetch(&bus[3].replace("city", loc), &token, &client)
-            .await?
-            .json::<BusSchedules>()
-            .await?;
-        fetch(&bus[4].replace("city", loc), &token, &client)
-            .await?
-            .json::<FirstLastTripInfo>()
-            .await?;
-        fetch(&bus[5].replace("city", loc), &token, &client)
-            .await?
-            .json::<BusShapes>()
-            .await?;
-        fetch(&bus[6].replace("city", loc), &token, &client)
-            .await?
-            .json::<BusRouteFare>()
-            .await?;
-        fetch(&bus[7].replace("city", loc), &token, &client)
-            .await?
-            .json::<BusRtFrequency>()
-            .await?;
-        fetch(&bus[8].replace("city", loc), &token, &client)
-            .await?
-            .json::<BusRtStops>()
-            .await?;
-        fetch(&bus[9].replace("city", loc), &token, &client)
-            .await?
-            .json::<BusEta>()
-            .await?;
-        fetch(&bus[10].replace("city", loc), &token, &client)
-            .await?
-            .json::<BusAlerts>()
-            .await?;
+        for elem in &bus {
+            let res = fetch(&elem.replace("city", loc), &token, &client)
+                .await?
+                .text()
+                .await?;
+
+            let _s: Vec<&str> = elem.split('/').collect();
+            let filename = format!("./output/{}Bus{}.json", loc, _s[3]);
+            let mut output = File::create(filename)?;
+            output.write_all(&res.as_bytes())?;
+        }
+        break;
     }
-
-    fetch(&ic_bus[0], &token, &client)
-        .await?
-        .json::<BusRoutes>()
-        .await?;
-    fetch(&ic_bus[1], &token, &client)
-        .await?
-        .json::<BusStops>()
-        .await?;
-    fetch(&ic_bus[2], &token, &client)
-        .await?
-        .json::<Operators>()
-        .await?;
-    fetch(&ic_bus[3], &token, &client)
-        .await?
-        .json::<BusSchedules>()
-        .await?;
-    fetch(&ic_bus[4], &token, &client)
-        .await?
-        .json::<FirstLastTripInfo>()
-        .await?;
-    fetch(&ic_bus[5], &token, &client)
-        .await?
-        .json::<BusShapes>()
-        .await?;
-    fetch(&ic_bus[6], &token, &client)
-        .await?
-        .json::<BusRouteFare>()
-        .await?;
-    fetch(&ic_bus[7], &token, &client)
-        .await?
-        .json::<BusRtFrequency>()
-        .await?;
-    fetch(&ic_bus[8], &token, &client)
-        .await?
-        .json::<BusRtStops>()
-        .await?;
-    fetch(&ic_bus[9], &token, &client)
-        .await?
-        .json::<BusEta>()
-        .await?;
-    fetch(&ic_bus[10], &token, &client)
-        .await?
-        .json::<BusAlerts>()
-        .await?;
-
-    for loc in metrosystem.iter() {
-        fetch(&metro[0].replace("metrosystem", loc), &token, &client)
-            .await?
-            .json::<RailStations>()
-            .await?;
-        fetch(&metro[1].replace("metrosystem", loc), &token, &client)
-            .await?
-            .json::<RailRoutes>()
-            .await?;
-        fetch(&metro[2].replace("metrosystem", loc), &token, &client)
-            .await?
-            .json::<FirstLastTimetables>()
-            .await?;
-        fetch(&metro[3].replace("metrosystem", loc), &token, &client)
-            .await?
-            .json::<RailFrequencies>()
-            .await?;
-        fetch(&metro[4].replace("metrosystem", loc), &token, &client)
-            .await?
-            .json::<RailShapes>()
-            .await?;
-        fetch(&metro[5].replace("metrosystem", loc), &token, &client)
-            .await?
-            .json::<MetroFares>()
-            .await?;
-        fetch(&metro[6].replace("metrosystem", loc), &token, &client)
-            .await?
-            .json::<MetroLiveBoard>()
-            .await?;
-        fetch(&metro[7].replace("metrosystem", loc), &token, &client)
-            .await?
-            .json::<MetroStationTimeTable>()
-            .await?;
-        fetch(&metro[8].replace("metrosystem", loc), &token, &client)
-            .await?
-            .json::<RailAlerts>()
-            .await?;
-    }
-
-    fetch(&rail[0], &token, &client)
-        .await?
-        .json::<Operators>()
-        .await?;
-    fetch(&rail[1], &token, &client)
-        .await?
-        .json::<RailStations>()
-        .await?;
-    fetch(&rail[2], &token, &client)
-        .await?
-        .json::<ThsrGeneralTimetables>()
-        .await?;
-    fetch(&rail[3], &token, &client)
-        .await?
-        .json::<RailShapes>()
-        .await?;
-    fetch(&rail[4], &token, &client)
-        .await?
-        .json::<ThsrFares>()
-        .await?;
-    fetch(&rail[5], &token, &client)
-        .await?
-        .json::<V3RailOperators>()
-        .await?;
-    fetch(&rail[6], &token, &client)
-        .await?
-        .json::<V3RailStations>()
-        .await?;
-    fetch(&rail[7], &token, &client)
-        .await?
-        .json::<V3GeneralTrainTimetables>()
-        .await?;
-    fetch(&rail[8], &token, &client)
-        .await?
-        .json::<V3RailShape>()
-        .await?;
-    fetch(&rail[9], &token, &client)
-        .await?
-        .json::<V3OdFares>()
-        .await?;
-    fetch(&rail[10], &token, &client)
-        .await?
-        .json::<V3RailOperators>()
-        .await?;
-    fetch(&rail[11], &token, &client)
-        .await?
-        .json::<V3RailStations>()
-        .await?;
-    fetch(&rail[12], &token, &client)
-        .await?
-        .json::<V3RailRoutes>()
-        .await?;
-    fetch(&rail[13], &token, &client)
-        .await?
-        .json::<V3GeneralTrainTimetables>()
-        .await?;
-    fetch(&rail[14], &token, &client)
-        .await?
-        .json::<V3RailShapes>()
-        .await?;
-    fetch(&rail[15], &token, &client)
-        .await?
-        .json::<V3OdFares>()
-        .await?;
-    fetch(&rail[16], &token, &client)
-        .await?
-        .json::<TrainLiveBoard>()
-        .await?;
-    fetch(&rail[17], &token, &client)
-        .await?
-        .json::<StationLiveBoard>()
-        .await?;
-    fetch(&rail[18], &token, &client)
-        .await?
-        .json::<RailAlerts>()
-        .await?;
-    fetch(&rail[19], &token, &client)
-        .await?
-        .json::<ThsrAlertInfo>()
-        .await?;
 
     Ok(())
 }
